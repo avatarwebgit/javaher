@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'name' => 'Test User',
             'name' => 'Test User',
+            'name' => 'Test User',
+            'name' => 'Test User',
 
 
 
