@@ -1,23 +1,31 @@
-name: Deploy to FTP
+name: Publish Website to CPanel
 on:
   push:
-    branches: [ master ]
-
+    branches:
+      - master
 jobs:
-  web-deploy:
-    name: 🎉 Deploy
+  FTP-Deploy-Action:
+    name: FTP-Deploy-Action
     runs-on: ubuntu-latest
     steps:
-    - name: 📂 Get latest code
-      uses: actions/checkout@v3
-    
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@4.1.0
+    - uses: actions/checkout@v2.1.0
+      with:
+        fetch-depth: 2 
+    - name: Build assets
+      run: npm install && npm run build
+
+    - name: Install PHP and Composer
+      uses: shivammathur/setup-php@v2
+      with:
+          php-version: '8.2' # Adjust to match the PHP version used by your Laravel project
+          tools: 'composer'
+
+    - name: Install PHP dependencies
+      run: composer install --no-dev --optimize-autoloader
+        
+    - name: FTP-Deploy-Action
+      uses: SamKirkland/FTP-Deploy-Action@4.3.3
       with:
         server: ftp.avatarvps.com
-        username: avatar
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./ # مسیر به دایرکتوری محلی
-        server-dir: /public_html/ # پوشه‌ای که فایل‌ها در آن قرار می‌گیرند
-        protocol: ftp
-        delete: false # فایل‌های قبلی را پاک نکنید
+        username: avatar@avatarvps.com
+        password: DpY3Q[qjcZ;S
