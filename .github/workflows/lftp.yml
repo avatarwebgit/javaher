@@ -1,7 +1,7 @@
 name: FTP Deploy
 on:
   push:
-    branches: [ main ]  # یا branch دیگری که می‌خواهید
+    branches: [ master ]  # یا branch دیگری که می‌خواهید
 
 jobs:
   deploy:
