@@ -15,8 +15,8 @@ jobs:
       - name: Deploy to cPanel
         uses: SamKirkland/FTP-Deploy-Action@4.1.0
         with:
-          server: avatarvps.com          # دامنه یا IP سرور شما
-          username: avatar    # نام کاربری FTP
+          server: ftp.avatarvps.com          # دامنه یا IP سرور شما
+          username: avatar@avatarvps.com    # نام کاربری FTP
           password: DpY3Q[qjcZ;S  # پسورد FTP از Secrets
           protocol: ftp                   # نوع پروتکل
           local-dir: ./                   # مسیر به دایرکتوری محلی
