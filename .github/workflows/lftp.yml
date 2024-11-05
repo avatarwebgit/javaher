@@ -14,25 +14,26 @@ jobs:
       - name: Install LFTP
         run: sudo apt-get update && sudo apt-get install -y lftp
 
+      - name: Create LFTP config file
+        run: |
+          mkdir -p ~/.lftp
+          echo "set ssl:verify-certificate no
+          set ftp:passive-mode true
+          set ftp:prefer-epsv false
+          set dns:fatal-timeout 30
+          set net:timeout 10
+          set net:max-retries 3
+          set net:reconnect-interval-base 5
+          set net:reconnect-interval-multiplier 1" > ~/.lftp/rc
+
       - name: Deploy to FTP
         env:
           FTP_USER: avatar@avatarvps.com
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ftp.avatarvps.com
         run: |
-          lftp -c "
-          set ftp:ssl-allow no;
-          set ssl:verify-certificate no;
-          set ftp:passive-mode on;
-          set ftp:prefer-epsv false;
-          set dns:fatal-timeout 30;
-          set net:timeout 10;
-          set net:max-retries 3;
-          set net:reconnect-interval-base 5;
-          set net:reconnect-interval-multiplier 1;
-          
-          open ftp://$FTP_USER:$FTP_PASS@$FTP_HOST;
-          
+          echo "set ftp:ssl-force false
+          open ftp://${FTP_USER}:${FTP_PASS}@${FTP_HOST}
           mirror --verbose \
                 --reverse \
                 --parallel=3 \
@@ -40,6 +41,7 @@ jobs:
                 --no-perms \
                 --exclude-glob .git* \
                 --exclude-glob node_modules/ \
-                ./ /public_html/;
+                ./ /public_html/
+          bye" > deploy.lftp
           
-          quit"
+          lftp -f deploy.lftp
