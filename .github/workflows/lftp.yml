@@ -20,7 +20,4 @@ jobs:
 
       - name: Deploy to cPanel with lftp
         run: |
-          lftp -u avatar,${{ secrets.FTP_PASSWORD }} ftp.avatarvps.com << EOF
-          mirror --reverse --delete --verbose ./ /public_html/javaher/
-          bye
-          EOF
+          lftp -u avatar,${{ secrets.FTP_PASSWORD }} ftp.avatarvps.com -e "mirror --reverse --delete --verbose ./ /public_html/javaher/; bye"
