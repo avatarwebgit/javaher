@@ -1,49 +1,19 @@
-name: LFTP Deploy
+name: Deploy with CURL
 on:
   push:
     branches: [ master ]
 
 jobs:
   deploy:
-    name: Deploy with LFTP
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install LFTP
-        run: sudo apt-get update && sudo apt-get install -y lftp
-
-      - name: Deploy to FTP
-        env:
-          FTP_USER: avatar@avatarvps.com
-          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
-          FTP_HOST: ftp.avatarvps.com
-        run: |
-          # ایجاد فایل نتورک کردنشیال
-          echo "machine $FTP_HOST
-          login $FTP_USER
-          password $FTP_PASS" > $HOME/.netrc
-          
-          # تنظیم دسترسی‌های فایل
-          chmod 600 $HOME/.netrc
-          
-          # اجرای دستورات LFTP
-          lftp -c "
-          set ssl:verify-certificate no;
-          set ftp:passive-mode true;
-          set ftp:ssl-allow no;
-          
-          open $FTP_HOST;
-          
-          lcd $GITHUB_WORKSPACE;
-          mirror --verbose \
-                --reverse \
-                --parallel=1 \
-                --only-newer \
-                --no-perms \
-                --exclude-glob .git* \
-                --exclude-glob node_modules/ \
-                ./ /public_html/;
-          
-          bye"
+    - uses: actions/checkout@v3
+    
+    - name: Deploy with curl
+      run: |
+        find . -type f -not -path '*/\.git/*' | while read file; do
+          curl --ftp-create-dirs \
+               -T $file \
+               -u avatar@avatarvps.com:${{ secrets.FTP_PASSWORD }} \
+               ftp://ftp.avatarvps.com/public_html/${file:2}
+        done
