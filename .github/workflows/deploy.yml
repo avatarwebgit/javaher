@@ -3,7 +3,7 @@ name: Deploy to cPanel
 on:
   push:
     branches:
-      - master  # یا master، بسته به نام برنچ اصلی شما
+      - master  # یا master
 
 jobs:
   deploy:
@@ -15,8 +15,9 @@ jobs:
       - name: Deploy to cPanel
         uses: SamKirkland/FTP-Deploy-Action@4.1.0
         with:
-          ftp-server: ftp://avatarvps.com  # دامنه شما
-          ftp-username: avatar     # نام کاربری FTP
-          ftp-password: DpY3Q[qjcZ;S  # پسورد FTP از Secrets
-          local-dir: ./                        # مسیر محلی به دایرکتوری پروژه
-          server-dir: /public_html/javaher/            # مسیر در سرور (باید به پوشه‌ای که می‌خواهید فایل‌ها را آپلود کنید اشاره کند)
+          server: avatarvps.com          # دامنه یا IP سرور شما
+          username: avatar    # نام کاربری FTP
+          password: DpY3Q[qjcZ;S  # پسورد FTP از Secrets
+          protocol: ftp                   # نوع پروتکل
+          local-dir: ./                   # مسیر به دایرکتوری محلی
+          server-dir: /public_html/javaher/     # پوشه‌ای که فایل‌ها در آن قرار می‌گیرند
