@@ -1,19 +1,23 @@
-name: Deploy with CURL
+name: Deploy to FTP
 on:
   push:
-    branches: [ master ]
+    branches: [ master ] # یا هر برنچ دیگه‌ای که می‌خواید
 
 jobs:
-  deploy:
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: 📂 Get latest code
+      uses: actions/checkout@v3
     
-    - name: Deploy with curl
-      run: |
-        find . -type f -not -path '*/\.git/*' | while read file; do
-          curl --ftp-create-dirs \
-               -T $file \
-               -u avatar@avatarvps.com:${{ secrets.FTP_PASSWORD }} \
-               ftp://ftp.avatarvps.com/public_html/${file:2}
-        done
+    - name: 📂 Sync files
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      with:
+        username: avatar@avatarvps.com
+        server: ftp.avatarvps.com
+        password: ${{ secrets.FTP_PASSWORD }}
+        local_path: './*' # فایل‌هایی که می‌خواید آپلود بشن
+        remote_path: './public_html' # مسیر روی هاست
+        delete_remote_files: false # فایل‌های قبلی رو پاک نکنه
+        exclude: '.git*,.git/**,.github/**'
