@@ -1,31 +1,45 @@
-name: FTP Deploy
+name: LFTP Deploy
 on:
   push:
-    branches: [ master ]  # یا branch دیگری که می‌خواهید
+    branches: [ master ]
 
 jobs:
   deploy:
-    name: Deploy to FTP
+    name: Deploy with LFTP
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: FTP Deploy
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ftp.avatarvps.com
-        username: avatar@avatarvps.com
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ./public_html/  # مسیر روی هاست
-        dangerous-clean-slate: false
-        timeout: 60000          # افزایش زمان timeout به 60 ثانیه
-        passive: true           # استفاده از حالت passive FTP
-        protocol: ftp          # تنظیم صریح پروتکل
-        port: 21               # پورت FTP
-        dry-run: false         # غیرفعال کردن حالت آزمایشی
-        log-level: verbose     # افزایش سطح لاگ برای عیب‌یابی بهتر
-        retries: 3             # تعداد تلاش‌های مجدد در صورت شکست
-        max-concurrent: 1      # محدود کردن تعداد اتصالات همزما
+      - name: Install LFTP
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Deploy to FTP
+        env:
+          FTP_USER: avatar@avatarvps.com
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          FTP_HOST: ftp.avatarvps.com
+        run: |
+          lftp -c "
+          set ftp:ssl-allow no;
+          set ssl:verify-certificate no;
+          set ftp:passive-mode on;
+          set ftp:prefer-epsv false;
+          set dns:fatal-timeout 30;
+          set net:timeout 10;
+          set net:max-retries 3;
+          set net:reconnect-interval-base 5;
+          set net:reconnect-interval-multiplier 1;
+          
+          open ftp://$FTP_USER:$FTP_PASS@$FTP_HOST;
+          
+          mirror --verbose \
+                --reverse \
+                --parallel=3 \
+                --only-newer \
+                --no-perms \
+                --exclude-glob .git* \
+                --exclude-glob node_modules/ \
+                ./ /public_html/;
+          
+          quit"
