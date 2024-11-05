@@ -1,27 +1,24 @@
-name: Deploy to cPanel
-
+name: FTP Deploy
 on:
   push:
-    branches:
-      - master  # یا main
+    branches: [ main ]  # یا branch دیگری که می‌خواهید
 
 jobs:
   deploy:
+    name: Deploy to FTP
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
 
-      - name: Install lftp
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lftp
-
-      - name: Deploy to cPanel with lftp
-        run: |
-          set -e
-          lftp -u avatar,${{ secrets.FTP_PASSWORD }} ftp.avatarvps.com << EOF
-          mirror --reverse --delete --verbose ./ /public_html/javaher/
-          bye
-          EOF
+    - name: FTP Deploy
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ftp.avatarvps.com
+        username: avatar@avatarvps.com
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: ./public_html/  # مسیر روی هاست
+        # فقط فایل‌های تغییر کرده آپلود می‌شوند
+        dangerous-clean-slate: false
