@@ -1,0 +1,22 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - master  # یا main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Upload to FTP
+        uses: wolfeidau/ftp-deploy@4.0.0
+        with:
+          server: ftp.avatarvps.com
+          username: avatar@avatarvps.com
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./                       # مسیر به دایرکتوری محلی
+          server-dir: /public_html/javaher/   # پوشه‌ای که فایل‌ها در آن قرار می‌گیرند
