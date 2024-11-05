@@ -1,0 +1,24 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - master  # یا main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install lftp
+        run: sudo apt-get install lftp
+
+      - name: Deploy to cPanel with lftp
+        run: |
+          lftp -u avatar,${{ secrets.FTP_PASSWORD }} ftp.avatarvps.com << EOF
+          mirror --reverse --delete --verbose ./ /public_html/javaher/
+          bye
+          EOF
