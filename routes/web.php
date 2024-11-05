@@ -2,6 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/l', function () {
+Route::get('/ppp', function () {
     return view('welcome');
 });
