@@ -14,34 +14,36 @@ jobs:
       - name: Install LFTP
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Create LFTP config file
-        run: |
-          mkdir -p ~/.lftp
-          echo "set ssl:verify-certificate no
-          set ftp:passive-mode true
-          set ftp:prefer-epsv false
-          set dns:fatal-timeout 30
-          set net:timeout 10
-          set net:max-retries 3
-          set net:reconnect-interval-base 5
-          set net:reconnect-interval-multiplier 1" > ~/.lftp/rc
-
       - name: Deploy to FTP
         env:
           FTP_USER: avatar@avatarvps.com
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ftp.avatarvps.com
         run: |
-          echo "set ftp:ssl-force false
-          open ftp://${FTP_USER}:${FTP_PASS}@${FTP_HOST}
+          # ایجاد فایل نتورک کردنشیال
+          echo "machine $FTP_HOST
+          login $FTP_USER
+          password $FTP_PASS" > $HOME/.netrc
+          
+          # تنظیم دسترسی‌های فایل
+          chmod 600 $HOME/.netrc
+          
+          # اجرای دستورات LFTP
+          lftp -c "
+          set ssl:verify-certificate no;
+          set ftp:passive-mode true;
+          set ftp:ssl-allow no;
+          
+          open $FTP_HOST;
+          
+          lcd $GITHUB_WORKSPACE;
           mirror --verbose \
                 --reverse \
-                --parallel=3 \
+                --parallel=1 \
                 --only-newer \
                 --no-perms \
                 --exclude-glob .git* \
                 --exclude-glob node_modules/ \
-                ./ /public_html/
-          bye" > deploy.lftp
+                ./ /public_html/;
           
-          lftp -f deploy.lftp
+          bye"
