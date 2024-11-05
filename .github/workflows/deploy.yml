@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}     # پسورد FTP از Secrets
           protocol: ftp                             # نوع پروتکل
           local-dir: ./                             # مسیر به دایرکتوری محلی
-          server-dir: /public_html/javaher/         # پوشه‌ای که فایل‌ها در آن قرار می‌گیرند
+          server-dir: /public_html/         # پوشه‌ای که فایل‌ها در آن قرار می‌گیرند
           port: 21                                  # شماره پورت
 
       - name: Final echo
