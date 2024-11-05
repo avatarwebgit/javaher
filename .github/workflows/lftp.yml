@@ -20,5 +20,12 @@ jobs:
         username: avatar@avatarvps.com
         password: ${{ secrets.FTP_PASSWORD }}
         server-dir: ./public_html/  # مسیر روی هاست
-        # فقط فایل‌های تغییر کرده آپلود می‌شوند
         dangerous-clean-slate: false
+        timeout: 60000          # افزایش زمان timeout به 60 ثانیه
+        passive: true           # استفاده از حالت passive FTP
+        protocol: ftp          # تنظیم صریح پروتکل
+        port: 21               # پورت FTP
+        dry-run: false         # غیرفعال کردن حالت آزمایشی
+        log-level: verbose     # افزایش سطح لاگ برای عیب‌یابی بهتر
+        retries: 3             # تعداد تلاش‌های مجدد در صورت شکست
+        max-concurrent: 1      # محدود کردن تعداد اتصالات همزما
